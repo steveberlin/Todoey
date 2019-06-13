@@ -11,7 +11,7 @@ import UIKit
 class TodoListViewController: UITableViewController {
 
     // initial array of to do items
-    let itemArray = ["Find Nate", "Buy Eggos", "Destroy Demogorgon"]
+    var itemArray = ["Find Nate", "Buy Eggos", "Destroy Demogorgon"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,5 +53,48 @@ class TodoListViewController: UITableViewController {
        
     
     }
+    
+    //MARK - Add New Items
+    
+    @IBAction func addButtonPressed(_ sender: Any) {
+        
+        // initialize a variable as a empty but not nil.  However,
+        // the .text property of the textField object is considered Optional,
+        // although it is initialized with a value of "" not nil, when
+        // it is dynamically created at run time - at least that's what
+        // appears to be happening
+        // UITextField used to pass information from the dynamically created
+        // text field (alert.addTextField) that is inside the
+        // dynamically created UIAlertController which appears
+        // as a popup window.
+        var textField = UITextField()
+        
+        let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
+            // When the object textField of type UITextField is created,
+            // it's property .text is considered Optional but appears to be
+            // initialized with a value of "" rather than nil.  So below,
+            // check to see if textField.text is blank before adding it to
+            // the item array and then reloading the tableView to reflected
+            // the new addition of data to the array.
+
+            if textField.text != "" {
+                self.itemArray.append(textField.text!)
+                self.tableView.reloadData()
+            }
+
+        }
+        
+        alert.addTextField { (alertTextField) in
+            alertTextField.placeholder = "Create new item"
+            textField = alertTextField
+        }
+        
+        alert.addAction(action)
+        
+        present(alert, animated: true, completion: nil)
+    }
+    
 }
 
