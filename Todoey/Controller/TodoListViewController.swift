@@ -11,7 +11,8 @@ import UIKit
 class TodoListViewController: UITableViewController {
 
     // initial array of to do items
-    var itemArray = ["Find Nate", "Buy Eggos", "Destroy Demogorgon"]
+    // var itemArray = ["Find Nate", "Buy Eggos", "Destroy Demogorgon"]
+        var itemArray = [Item]()
     
     // initialize an object to access UserDefaults
     let defaults = UserDefaults.standard
@@ -20,12 +21,25 @@ class TodoListViewController: UITableViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
+        let newItem = Item()
+        newItem.title = "Find Mike"
+        itemArray.append(newItem)
+
+        let newItem2 = Item()
+        newItem2.title = "Buy Eggos"
+        itemArray.append(newItem2)
+
+        let newItem3 = Item()
+        newItem3.title = "Destroy Demogorgon"
+        itemArray.append(newItem3)
+        
         // Load itemArray from Userdefaults - if there is actually something
         // in Userdefaults named "TodoListArray" - meaning it has previously
         // been stored there by an earlier run of the app
-        if let items = defaults.array(forKey: "TodoListArray") as? [String] {
+        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
             itemArray = items
         }
+        
     }
 
     //MARK - Tableview Datasource Methods
@@ -39,7 +53,16 @@ class TodoListViewController: UITableViewController {
         //
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         
-        cell.textLabel?.text = itemArray[indexPath.row]
+        //cell.textLabel?.text = itemArray[indexPath.row]
+        cell.textLabel?.text = itemArray[indexPath.row].title
+        
+        cell.accessoryType = itemArray[indexPath.row].done ? .checkmark : .none
+// THE FOLLOWING BLOCK OF CODE IS REPLACED WITH THE LINE ABOVE USING THE TERNARY OPERATOR
+//        if itemArray[indexPath.row].done == true {
+//            cell.accessoryType = .checkmark
+//        } else {
+//            cell.accessoryType = .none
+//        }
         
         return cell
     }
@@ -52,15 +75,24 @@ class TodoListViewController: UITableViewController {
         // deselectes the table cell that was just selected (removing the highlight)
         tableView.deselectRow(at: indexPath, animated: true)
         
-        // places or removes a checkmark next at the right side of the table
-        // cell that was just selected.
-        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
-            tableView.cellForRow(at: indexPath)?.accessoryType = .none
-        } else {
-             tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
-        }
-            
-       
+//        // places or removes a checkmark next at the right side of the table
+//        // cell that was just selected.
+//        if tableView.cellForRow(at: indexPath)?.accessoryType == .checkmark {
+//            tableView.cellForRow(at: indexPath)?.accessoryType = .none
+//        } else {
+//             tableView.cellForRow(at: indexPath)?.accessoryType = .checkmark
+//        }
+        // toggle the "done" property if the cell is selected
+        // The next line is the same as the if/else block below it, toggling the boolean value
+        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+//        if itemArray[indexPath.row].done == false {
+//            itemArray[indexPath.row].done = true
+//        } else {
+//            itemArray[indexPath.row].done = false
+//        }
+        
+        // trigger a refresh of the tableView
+        self.tableView.reloadData()
     
     }
     
@@ -90,10 +122,16 @@ class TodoListViewController: UITableViewController {
             // the new addition of data to the array.
 
             if textField.text != "" {
-                // add the new item as a new element to the end of itemArray
-                self.itemArray.append(textField.text!)
+                
+
+                
+                let newItem = Item()
+                newItem.title = textField.text!
+                self.itemArray.append(newItem)
+                
                 // save the itemArray to Userdefaults
                 self.defaults.set(self.itemArray, forKey: "TodoListArray")
+                
                 // trigger a refresh of the tableView
                 self.tableView.reloadData()
             }
