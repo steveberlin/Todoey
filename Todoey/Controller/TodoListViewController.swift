@@ -14,31 +14,42 @@ class TodoListViewController: UITableViewController {
     // var itemArray = ["Find Nate", "Buy Eggos", "Destroy Demogorgon"]
         var itemArray = [Item]()
     
+        // NOTE:  FileManager command below returns an array so adding .first will return just the first array element
+        // into the variable dataFilePath.  Not sure under what conditions more than one element [0] is returned.
+        //
+        // .appendingPathComponent method creates a file with the specified name.
+        let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+ 
+    
     // initialize an object to access UserDefaults
-    let defaults = UserDefaults.standard
+    // let defaults = UserDefaults.standard
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
-        let newItem = Item()
-        newItem.title = "Find Mike"
-        itemArray.append(newItem)
-
-        let newItem2 = Item()
-        newItem2.title = "Buy Eggos"
-        itemArray.append(newItem2)
-
-        let newItem3 = Item()
-        newItem3.title = "Destroy Demogorgon"
-        itemArray.append(newItem3)
+        print(dataFilePath!)
+        
+//        let newItem = Item()
+//        newItem.title = "Find Mike"
+//        itemArray.append(newItem)
+//        
+//        let newItem2 = Item()
+//        newItem2.title = "Buy Eggos"
+//        itemArray.append(newItem2)
+//
+//        let newItem3 = Item()
+//        newItem3.title = "Destroy Demogorgon"
+//        itemArray.append(newItem3)
         
         // Load itemArray from Userdefaults - if there is actually something
         // in Userdefaults named "TodoListArray" - meaning it has previously
         // been stored there by an earlier run of the app
-        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
-            itemArray = items
-        }
+//        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
+//            itemArray = items
+//        }
+        
+        loadData()
         
     }
 
@@ -91,8 +102,8 @@ class TodoListViewController: UITableViewController {
 //            itemArray[indexPath.row].done = false
 //        }
         
-        // trigger a refresh of the tableView
-        self.tableView.reloadData()
+        // save itemArray to Items.plist file and refresh the tableView
+        self.saveItems()
     
     }
     
@@ -130,10 +141,11 @@ class TodoListViewController: UITableViewController {
                 self.itemArray.append(newItem)
                 
                 // save the itemArray to Userdefaults
-                self.defaults.set(self.itemArray, forKey: "TodoListArray")
+//                self.defaults.set(self.itemArray, forKey: "TodoListArray")
                 
-                // trigger a refresh of the tableView
-                self.tableView.reloadData()
+                // save itemArray to Items.plist file and refresh the tableView
+                self.saveItems()
+                
             }
 
         }
@@ -148,5 +160,37 @@ class TodoListViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
     }
     
-}
 
+
+//MARK - Model Manipulation Methods
+
+    func saveItems() {
+        // use an encoder to store itemArray instead of Userdefaults
+        let encoder = PropertyListEncoder()
+        do {
+            let data = try encoder.encode(itemArray)
+            try data.write(to: dataFilePath!)
+        } catch {
+            print("Error encoding item array, \(error)")
+        }
+        
+        
+        // trigger a refresh of the tableView
+        tableView.reloadData()
+    }
+    
+    func loadData() {
+        // try? makes the result of the try? (ie; the variable data) an Optional so it can be safely unwrapped in case
+        // there is an error (no file yet exists, etc.)
+        if let data = try? Data(contentsOf: dataFilePath!) {
+            let decoder = PropertyListDecoder()
+            do {
+                itemArray = try decoder.decode([Item].self, from: data)
+            } catch {
+                print("Error decoding data.")
+            }
+
+        }
+    }
+
+}

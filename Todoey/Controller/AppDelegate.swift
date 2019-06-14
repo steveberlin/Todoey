@@ -22,6 +22,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // /Library/Preferences at the same directory level as /Documents
         //print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last! as String)
         
+        // moved defination of dataFilePath (to replace use of Userdefaults) to TodoListViewController.swift
+        
         return true
     }
 
