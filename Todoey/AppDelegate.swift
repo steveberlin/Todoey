@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import RealmSwift
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -17,13 +18,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+   
+        print(Realm.Configuration.defaultConfiguration.fileURL)
         
-        // return file search path to app's Documents directory
-        // NOTE:  the Userdefaults .plist file is located in
-        // /Library/Preferences at the same directory level as /Documents
-        //print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last! as String)
+        let data = Data()
+        data.name = "Steve"
+        data.age = 54
         
-        // moved defination of dataFilePath (to replace use of Userdefaults) to TodoListViewController.swift
+        
+        // Initialize a new Realm object, like a persistent container
+        do {
+            let realm = try Realm()
+            try realm.write {
+                realm.add(data)
+            }
+        } catch {
+            print("Error initialising new realm, \(error)")
+        }
+        
+
+
+    
         
         return true
     }
