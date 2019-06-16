@@ -7,7 +7,6 @@
 //
 
 import UIKit
-//import CoreData
 import RealmSwift
 
 class CategoryViewController: UITableViewController {
@@ -50,10 +49,8 @@ class CategoryViewController: UITableViewController {
         
         cell.textLabel?.text = categoryArray?[indexPath.row].name ?? "No Categories Added Yet"
         
-        
         return cell
     }
-    
     
     
     //MARK: - Data Manipulation Methods

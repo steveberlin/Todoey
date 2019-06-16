@@ -21,18 +21,16 @@ class TodoListViewController: UITableViewController {
     var selectedCategory : Category? {
         // didSet block runs when selectedCategory is initialized
         didSet {
-           loadData()
+           loadItems()
         }
     }
-    
-    
 
     @IBOutlet weak var searchBar: UISearchBar!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        
+        searchBar.delegate = self
     }
 
     //MARK - Tableview Datasource Methods
@@ -66,6 +64,11 @@ class TodoListViewController: UITableViewController {
                 try realm.write {
                     item.done = !item.done
                 }
+                // if you wanted to delete an item instead of marking it with a check mark you would you the try block
+                // below instead of the try block above
+//                try realm.write {
+//                    realm.delete(item)
+//                }
             } catch {
                 print("Error saving done status, \(error)")
             }
@@ -93,6 +96,7 @@ class TodoListViewController: UITableViewController {
                         try self.realm.write {
                             let newItem = Item()
                             newItem.title = textField.text!
+                            newItem.dateCreated = Date()
                             newItem.done = false
                             currentCategory.items.append(newItem)
                         }
@@ -122,80 +126,36 @@ class TodoListViewController: UITableViewController {
 
 //MARK - Model Manipulation Methods
 
-    func loadData() {
+    func loadItems() {
         
         todoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
 
         tableView.reloadData()
     }
     
-
-
 }
 
-//extension TodoListViewController : UISearchBarDelegate {
-//
-//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-//        let request : NSFetchRequest<Item> = Item.fetchRequest()
-//
-////        let predicate = NSPredicate(format: "title INCLUDES[cd] %@", searchBar.text!)
-////        request.predicate = predicate
-//        // line below is a refactored form of the above two lines
-//        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
-//
-////        let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)
-////        // NOTE:  request.sortDescriptors is an array.  In our case we are only specifying one sort descriptor but we still have to make it an array, so
-////        // we place brackets around it to make it an array of a single element.
-////        request.sortDescriptors = [sortDescriptor]
-//        // line below is a refactored form of the above two code lines.  NOTE the use of [] around NSSortDescriptor to create an array as is expected by .sortDescriptors
-//        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-//
-//        // make the fetch request with the predicate and sortDescriptors
-//        loadData(with: request, predicate: predicate)
-//    }
-//
-//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//        // THis function is triggered any time text is the search bar is changed.  The if statement below looks for the case when
-//        // the count of letters in the searchBar text field becomes 0, meaning it has become blank, either when backspaced entirely
-//        // or the x is selected to erease all existing text in the text bar.
-//
-//        // If that is the case, eg; no text in the search bar, then reload data with no filter, eg. no request is passed
-//        // to the loadData() function, in which case the function is setup to provide a blank fetchReques which will then
-//        // fetch all data, unfiltered, from the CoreData SQLite database.
-//
-//        if searchBar.text?.count == 0 {
-//            loadData()
-//
-//            // DispatchQueue.main.async {} is a block of code that will be run on the main thread of the application,
-//            // this is where changes to the user interface should happen.
-//            DispatchQueue.main.async {
-//                //resignFirstResponder() method tells an element, in this case searchBar, it should no longer be the thing that is currently selected,
-//                //it no longer has the cursor and the keyboard should be dismissed.  We want his to happen in the foreground (main thread) so it is done inside a
-//                //DispatchQueue.main.async block.
-//                searchBar.resignFirstResponder()
-//            }
-//
-//
-//        } else {
-//            // NOTE:  This is the same code as in the func searchBarSearchButtonClicked()
-//            // this should cause the search to happen automatically each time the text in the searchBar is changed,
-//            // not only when the Search button is pressed.
-//            let request : NSFetchRequest<Item> = Item.fetchRequest()
-//
-//            //        let predicate = NSPredicate(format: "title INCLUDES[cd] %@", searchBar.text!)
-//            //        request.predicate = predicate
-//            // line below is a refactored form of the above two lines
-//            let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
-//
-//            //        let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)
-//            //        // NOTE:  request.sortDescriptors is an array.  In our case we are only specifying one sort descriptor but we still have to make it an array, so
-//            //        // we place brackets around it to make it an array of a single element.
-//            //        request.sortDescriptors = [sortDescriptor]
-//            // line below is a refactored form of the above two code lines.  NOTE the use of [] around NSSortDescriptor to create an array as is expected by .sortDescriptors
-//            request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-//
-//            // make the fetch request with the predicate and sortDescriptors
-//            loadData(with: request, predicate: predicate)
-//        }
-//    }
-//}
+extension TodoListViewController : UISearchBarDelegate {
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+
+        todoItems = todoItems?.filter("title CONTAINS[cd] %@", searchBar.text!).sorted(byKeyPath: "dateCreated", ascending: false)
+        tableView.reloadData()
+    }
+
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+
+        if searchBar.text?.count == 0 {
+            // if search bar is cleared, call loadData() to reload all data with no filter
+            loadItems()
+
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+
+        } else {
+            todoItems = todoItems?.filter("title CONTAINS[cd] %@", searchBar.text!).sorted(byKeyPath: "dateCreated", ascending: false)
+            tableView.reloadData()
+        }
+    }
+}
