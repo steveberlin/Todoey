@@ -15,6 +15,13 @@ class TodoListViewController: UITableViewController {
     // var itemArray = ["Find Nate", "Buy Eggos", "Destroy Demogorgon"]
         var itemArray = [Item]()
     
+    var selectedCategory : Category? {
+        // didSet block runs when selectedCategory is initialized
+        didSet {
+            loadData()
+        }
+    }
+    
         // NOTE:  FileManager command below returns an array so adding .first will return just the first array element
         // into the variable dataFilePath.  Not sure under what conditions more than one element [0] is returned.
         //
@@ -63,7 +70,8 @@ class TodoListViewController: UITableViewController {
 //            itemArray = items
 //        }
         
-        loadData()
+        // moved to didSet block above
+//        loadData()
         
     }
 
@@ -73,6 +81,8 @@ class TodoListViewController: UITableViewController {
         //
         return itemArray.count
     }
+    
+    
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         //
@@ -156,6 +166,7 @@ class TodoListViewController: UITableViewController {
                 
                 newItem.title = textField.text!
                 newItem.done = false
+                newItem.parentCategory = self.selectedCategory
                 self.itemArray.append(newItem)
                 
                 // save the itemArray to Userdefaults
@@ -191,7 +202,7 @@ class TodoListViewController: UITableViewController {
             try context.save()
         } catch {
 //            print("Error encoding item array, \(error)")
-            print("Error saving conext \(error)")
+            print("Error saving Items conext \(error)")
         }
         
         
@@ -205,18 +216,19 @@ class TodoListViewController: UITableViewController {
     // eg; calling loadData() without an argument creates a default blank request of type NSFetchRequest<Item> with the default value Item.fetchRequest()
     // calling loadData(request) with a NSFetchRequest already created, which could include custom .predicate and .sortDescriptors will use the passed argument
     // as the request.
-    func loadData(with request: NSFetchRequest<Item> = Item.fetchRequest()) {
-        // try? makes the result of the try? (ie; the variable data) an Optional so it can be safely unwrapped in case
-        // there is an error (no file yet exists, etc.)
-//        if let data = try? Data(contentsOf: dataFilePath!) {
-//            let decoder = PropertyListDecoder()
-//            do {
-//                itemArray = try decoder.decode([Item].self, from: data)
-//            } catch {
-//                print("Error decoding data.")
-//            }
-//
-//        }
+    
+    // NSPredicate? = nil creates a Optional NSPredicate type with a default
+    // value of nil - for cases when no predicate is passed as an argument
+    func loadData(with request: NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil) {
+
+        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES[cd] %@", selectedCategory!.name!)
+        
+        if let additionalPredicate = predicate {
+                    request.predicate = NSCompoundPredicate.init(andPredicateWithSubpredicates: [categoryPredicate, additionalPredicate])
+        } else {
+            request.predicate = categoryPredicate
+        }
+
         
         // this request will fetch results in the form specified by the Item data model
         // NSFetchRequest<Item> specifies that request is of type NSFetchRequest and it will return an array of Item(s) <Item>
@@ -232,7 +244,7 @@ class TodoListViewController: UITableViewController {
             // represents a database row, which is made up of database fields (ie; Core Data attributes, or Class properties)
             itemArray = try context.fetch(request)
         } catch {
-            print("Error fetching data from context \(error)")
+            print("Error fetching Item data from context \(error)")
         }
 
         tableView.reloadData()
@@ -252,7 +264,7 @@ extension TodoListViewController : UISearchBarDelegate {
 //        let predicate = NSPredicate(format: "title INCLUDES[cd] %@", searchBar.text!)
 //        request.predicate = predicate
         // line below is a refactored form of the above two lines
-        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
         
 //        let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)
 //        // NOTE:  request.sortDescriptors is an array.  In our case we are only specifying one sort descriptor but we still have to make it an array, so
@@ -262,7 +274,7 @@ extension TodoListViewController : UISearchBarDelegate {
         request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
         
         // make the fetch request with the predicate and sortDescriptors
-        loadData(with: request)
+        loadData(with: request, predicate: predicate)
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -296,7 +308,7 @@ extension TodoListViewController : UISearchBarDelegate {
             //        let predicate = NSPredicate(format: "title INCLUDES[cd] %@", searchBar.text!)
             //        request.predicate = predicate
             // line below is a refactored form of the above two lines
-            request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+            let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
             
             //        let sortDescriptor = NSSortDescriptor(key: "title", ascending: true)
             //        // NOTE:  request.sortDescriptors is an array.  In our case we are only specifying one sort descriptor but we still have to make it an array, so
@@ -306,7 +318,7 @@ extension TodoListViewController : UISearchBarDelegate {
             request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
             
             // make the fetch request with the predicate and sortDescriptors
-            loadData(with: request)
+            loadData(with: request, predicate: predicate)
         }
     }
 }
