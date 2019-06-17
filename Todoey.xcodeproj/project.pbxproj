@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1F40255D22B83767002AAD4C /* SwipeTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F40255C22B83767002AAD4C /* SwipeTableViewController.swift */; };
 		1F4F88C322B62FFD003A661E /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4F88C222B62FFD003A661E /* Item.swift */; };
 		1F4F88C522B63007003A661E /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4F88C422B63007003A661E /* Category.swift */; };
 		1FF61B9E22B1D60B0018C845 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF61B9D22B1D60B0018C845 /* AppDelegate.swift */; };
@@ -20,6 +21,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1F40255C22B83767002AAD4C /* SwipeTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeTableViewController.swift; sourceTree = "<group>"; };
 		1F4F88C222B62FFD003A661E /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 		1F4F88C422B63007003A661E /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		1FF61B9A22B1D60B0018C845 /* Todoey.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Todoey.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -85,6 +87,7 @@
 			children = (
 				1FF61BDB22B5CA8B0018C845 /* CategoryViewController.swift */,
 				1FF61B9F22B1D60B0018C845 /* TodoListViewController.swift */,
+				1F40255C22B83767002AAD4C /* SwipeTableViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -249,6 +252,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1FF61BDC22B5CA8B0018C845 /* CategoryViewController.swift in Sources */,
+				1F40255D22B83767002AAD4C /* SwipeTableViewController.swift in Sources */,
 				1FF61BA022B1D60B0018C845 /* TodoListViewController.swift in Sources */,
 				1F4F88C322B62FFD003A661E /* Item.swift in Sources */,
 				1FF61B9E22B1D60B0018C845 /* AppDelegate.swift in Sources */,

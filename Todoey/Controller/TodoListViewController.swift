@@ -9,7 +9,7 @@
 import UIKit
 import RealmSwift
 
-class TodoListViewController: UITableViewController {
+class TodoListViewController: SwipeTableViewController {
 
     // initial array of to do items
     // var itemArray = ["Find Nate", "Buy Eggos", "Destroy Demogorgon"]
@@ -31,6 +31,9 @@ class TodoListViewController: UITableViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         searchBar.delegate = self
+        
+        tableView.rowHeight = 60
+        
     }
 
     //MARK - Tableview Datasource Methods
@@ -42,7 +45,7 @@ class TodoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         //
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
         if let item = todoItems?[indexPath.row] {
             cell.textLabel?.text = item.title
@@ -66,9 +69,9 @@ class TodoListViewController: UITableViewController {
                 }
                 // if you wanted to delete an item instead of marking it with a check mark you would you the try block
                 // below instead of the try block above
-//                try realm.write {
-//                    realm.delete(item)
-//                }
+                //                try realm.write {
+                //                    realm.delete(item)
+                //                }
             } catch {
                 print("Error saving done status, \(error)")
             }
@@ -131,6 +134,20 @@ class TodoListViewController: UITableViewController {
         todoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
 
         tableView.reloadData()
+    }
+    
+    override func updateDataModel(at indexPath: IndexPath) {
+        if let item = todoItems?[indexPath.row] {
+            do {
+//                 if you wanted to delete an item instead of marking it with a check mark you would you the try block
+//                 below instead of the try block above
+                try realm.write {
+                    realm.delete(item)
+                                }
+            } catch {
+                print("Error saving done status, \(error)")
+            }
+        }
     }
     
 }

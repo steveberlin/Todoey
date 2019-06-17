@@ -9,7 +9,7 @@
 import UIKit
 import RealmSwift
 
-class CategoryViewController: UITableViewController {
+class CategoryViewController: SwipeTableViewController {
 
     
     // Initialize a new Realm
@@ -31,6 +31,8 @@ class CategoryViewController: UITableViewController {
         super.viewDidLoad()
 
         loadCategories()
+        
+        tableView.rowHeight = 60
 
     }
     
@@ -45,10 +47,12 @@ class CategoryViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
+        // access the cell in tableView created in the superclass SwipeTableViewController
+        // this gives access to the swipable cell
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
         cell.textLabel?.text = categoryArray?[indexPath.row].name ?? "No Categories Added Yet"
-        
+
         return cell
     }
     
@@ -75,6 +79,22 @@ class CategoryViewController: UITableViewController {
 //            print("Error fetching Category data from context \(error)")
 //        }
         tableView.reloadData()
+    }
+    
+    override func updateDataModel(at indexPath: IndexPath) {
+        print("Item Deleted")
+        if let category = self.categoryArray?[indexPath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(category)
+                }
+            } catch {
+                print("Error deleting category. \(error)")
+            }
+        }
+        //tableView.reloadData() isn't needed because .expansionStyle = .destructive is specified in edit ActionsOptionsForRowAt
+        //   this option also deletes the selected row
+        //tableView.reloadData()
     }
     
     //MARK: - Add New Categories
@@ -127,8 +147,7 @@ class CategoryViewController: UITableViewController {
                 destinationVC.selectedCategory = categoryArray?[indexPath.row]
             }
         }
-        
-       
     }
 
 }
+
