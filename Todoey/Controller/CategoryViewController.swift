@@ -8,6 +8,7 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
 class CategoryViewController: SwipeTableViewController {
 
@@ -33,9 +34,9 @@ class CategoryViewController: SwipeTableViewController {
         loadCategories()
         
         tableView.rowHeight = 60
+        tableView.separatorStyle = .none
 
     }
-    
     
     //MARK: - TableView Datasource Methods
     
@@ -51,11 +52,22 @@ class CategoryViewController: SwipeTableViewController {
         // this gives access to the swipable cell
         let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
+
         cell.textLabel?.text = categoryArray?[indexPath.row].name ?? "No Categories Added Yet"
+        
+        guard let categoryColor = UIColor(hexString: categoryArray?[indexPath.row].hexValue ?? "#60a3bc") else {fatalError()}
+        
+        cell.backgroundColor = categoryColor
+        cell.textLabel?.textColor = ContrastColorOf(categoryColor, returnFlat: true)
 
         return cell
     }
     
+//    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//
+//
+//
+//    }
     
     //MARK: - Data Manipulation Methods
     
@@ -97,6 +109,22 @@ class CategoryViewController: SwipeTableViewController {
         //tableView.reloadData()
     }
     
+    override func pickNewRandomColor(at indexPath: IndexPath) {
+        if let category = categoryArray?[indexPath.row] {
+            do {
+                try realm.write {
+                    category.hexValue = UIColor.randomFlat.hexValue()
+                }
+            } catch {
+                print("Error saving done status, \(error)")
+            }
+        }
+        tableView.reloadData()
+        
+        // deselectes the table cell that was just selected (removing the highlight)
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
     //MARK: - Add New Categories
     
     @IBAction func addButtonPressed(_ sender: Any) {
@@ -108,6 +136,7 @@ class CategoryViewController: SwipeTableViewController {
             if textField.text != "" {
                 let newCategory = Category()
                 newCategory.name = textField.text!
+                newCategory.hexValue = UIColor.randomFlat.hexValue()
                 // the .append command is no longer neaded because categoryArray is an auto-updating object
 //                self.categoryArray.append(newCategory)
                 self.saveCategories(category: newCategory)

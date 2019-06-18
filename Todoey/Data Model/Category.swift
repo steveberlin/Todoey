@@ -11,6 +11,7 @@ import RealmSwift
 
 class Category: Object {
     @objc dynamic var name: String = ""
+    @objc dynamic var hexValue: String = ""
     // List is a Realm object similar to an array.  The line below defines the one-to-many forward relationship of an array (List)
     // of Item objects of <Item> objects that are empty ().
     // This uses the same valid swift Array initizlization syntax, different versions shown below.

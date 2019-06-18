@@ -31,13 +31,17 @@ class SwipeTableViewController: UITableViewController, SwipeTableViewCellDelegat
         let deleteAction = SwipeAction(style: .destructive, title: "Delete") { action, indexPath in
             // handle action by updating model with deletion
             self.updateDataModel(at: indexPath)
-
+        }
+        
+        let colorAction = SwipeAction(style: .default, title: "Color") { action, indexPath in
+            self.pickNewRandomColor(at: indexPath)
         }
         
         // customize the action appearance
         deleteAction.image = UIImage(named: "delete-icon")
+        colorAction.image = UIImage(named: "more-icon")
         
-        return [deleteAction]
+        return [deleteAction, colorAction]
     }
     
     func tableView(_ tableView: UITableView, editActionsOptionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> SwipeOptions {
@@ -48,6 +52,10 @@ class SwipeTableViewController: UITableViewController, SwipeTableViewCellDelegat
     }
     
     func updateDataModel(at indexPath: IndexPath) {
+        
+    }
+    
+    func pickNewRandomColor(at indexPath: IndexPath) {
         
     }
 
